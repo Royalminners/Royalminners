@@ -1,0 +1,197 @@
+
+HTML 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game-container">
+    <div id="board">
+      <div class="row">
+        <div class="cell" data-cell="0"></div>
+        <div class="cell" data-cell="1"></div>
+        <div class="cell" data-cell="2"></div>
+      </div>
+      <div class="row">
+        <div class="cell" data-cell="3"></div>
+        <div class="cell" data-cell="4"></div>
+        <div class="cell" data-cell="5"></div>
+      </div>
+      <div class="row">
+        <div class="cell" data-cell="6"></div>
+        <div class="cell" data-cell="7"></div>
+        <div class="cell" data-cell="8"></div>
+      </div>
+    </div>
+    <button id="restartBtn">Restart Game</button>
+  </div>
+  <div id="winnerPopup" class="popup">
+    <div id="winnerMessage"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+CSS 
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+#game-container {
+  text-align: center;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #e2e2e2;
+  font-size: 2rem;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.popup.active {
+  display: flex;
+}
+
+
+
+JAVASCRIPT 
+
+const cells = document.querySelectorAll('.cell');
+const winnerPopup = document.getElementById('winnerPopup');
+const winnerMessage = document.getElementById('winnerMessage');
+const restartBtn = document.getElementById('restartBtn');
+
+let currentPlayer = 'X';
+let gameBoard = ['', '', '', '', '', '', '', '', ''];
+let gameActive = true;
+
+// Winning combinations
+const winningCombinations = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
+
+// Check for a winner
+function checkWinner() {
+  for (const combination of winningCombinations) {
+    const [a, b, c] = combination;
+    if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+      return gameBoard[a];
+    }
+  }
+  return null;
+}
+
+// Random background color
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+// Handle cell click
+function handleCellClick(event) {
+  const index = event.target.dataset.cell;
+
+  if (gameBoard[index] || !gameActive) return;
+
+  gameBoard[index] = currentPlayer;
+  event.target.textContent = currentPlayer;
+
+  const winner = checkWinner();
+  if (winner) {
+    gameActive = false;
+    winnerPopup.classList.add('active');
+    winnerMessage.textContent = `${winner} wins!`;
+    document.body.style.backgroundColor = getRandomColor(); // Change background color on win
+    return;
+  }
+
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+}
+
+// Restart the game
+function restartGame() {
+  gameBoard = ['', '', '', '', '', '', '', '', ''];
+  gameActive = true;
+  currentPlayer = 'X';
+  cells.forEach(cell => cell.textContent = '');
+  winnerPopup.classList.remove('active');
+  document.body.style.backgroundColor = '#f4f4f4'; // Reset background color
+}
+
+// Add event listeners
+cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+restartBtn.addEventListener('click', restartGame);
